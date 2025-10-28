@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contagem Regressiva — Férias Coletivas</title>
+  <style>
+    /* ======================
+       CONFIGURAÇÕES EDITÁVEIS
+       Altere valores abaixo diretamente no HTML/CSS
+       ====================== */
+    :root{
+      /* cores */
+      --bg-start: #f0f7f2;    /* fundo gradiente - início */
+      --bg-end: #e6f1ea;      /* fundo gradiente - fim */
+      --card-bg: rgba(255,255,255,0.95);
+      --accent: #2b7a4b;      /* cor principal */
+      --text: #08312a;
+      --muted: #5b6b66;
+
+      /* tipografia */
+      --font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+      --title-size: 24px;
+      --label-size: 12px;
+      --value-size: 36px;
+
+      /* espaçamento e dimensões */
+      --card-padding: 28px;
+      --card-radius: 16px;
+      --logo-width: 200px; /* largura do logo - altere aqui */
+
+      /* borda (opcional) */
+      --card-border: 1px solid rgba(8,49,42,0.06);
+    }
+
+    /* --- Reset e base --- */
+    html,body{height:100%;margin:0;font-family:var(--font-family);}
+    body{background:linear-gradient(135deg,var(--bg-start),var(--bg-end));color:var(--text);display:flex;align-items:center;justify-content:center;padding:24px}
+
+    /* --- Card --- */
+    .card{
+      width:100%;max-width:980px;background:var(--card-bg);border-radius:var(--card-radius);padding:var(--card-padding);box-shadow:0 10px 30px rgba(6,20,12,0.06);border:var(--card-border);display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+
+    .brand{display:flex;align-items:center;gap:16px;flex:0 0 auto}
+    .brand img{width:var(--logo-width);height:auto;display:block}
+    .brand .meta{display:flex;flex-direction:column;gap:4px}
+    .brand .meta .company{font-weight:700;font-size:18px}
+    .brand .meta .note{font-size:13px;color:var(--muted)}
+
+    /* --- Countdown layout --- */
+    .countdown{flex:1;display:flex;align-items:center;justify-content:center}
+    .blocks{display:flex;gap:12px;align-items:stretch;flex-wrap:wrap;justify-content:center}
+    .block{background:linear-gradient(180deg,rgba(255,255,255,0.8),rgba(255,255,255,0.98));padding:14px 18px;border-radius:12px;min-width:96px;box-shadow:0 6px 14px rgba(8,49,42,0.04);text-align:center}
+
+    .block .value{font-size:var(--value-size);font-weight:700;color:var(--accent);line-height:1}
+    .block .label{font-size:var(--label-size);color:var(--muted);letter-spacing:0.04em;margin-top:6px;text-transform:uppercase}
+
+    /* mobile tweaks */
+    @media (max-width:600px){
+      :root{--logo-width:140px;--value-size:28px}
+      .card{padding:18px}
+      .block{min-width:72px;padding:10px}
+    }
+
+    /* small helper */
+    .note-bottom{width:100%;text-align:center;color:var(--muted);font-size:13px;margin-top:10px}
+  </style>
+</head>
+<body>
+  <!--
+    INSTRUÇÕES RÁPIDAS (EDITE AQUI):
+    - Troque o src do <img id="logo"> para o logo da sua empresa (pode ser caminho relativo ou URL).
+    - Altere as variáveis CSS no topo para mudar cores, fontes e dimensões.
+    - Para ajustar a data/hora alvo, edite a constante `TARGET_ISO` dentro do script (formato ISO: YYYY-MM-DDTHH:MM:SS).
+    - Os rótulos estão em português (DIAS, HORAS, MINUTOS, SEGUNDOS). Modifique se quiser.
+  -->
+
+  <div class="card" role="region" aria-label="Contagem regressiva para férias coletivas">
+    <div class="brand">
+      <!-- Troque o src abaixo pelo caminho do logo da sua empresa -->
+      <img id="logo" src="./logotipo.jpg" alt="Logo da empresa">
+      <div class="meta">
+        <div class="company">ARBOREAL</div>
+        <div class="note">Férias coletivas — Retorno em breve</div>
+      </div>
+    </div>
+
+    <div class="countdown">
+      <div class="blocks" id="blocks">
+        <div class="block">
+          <div class="value" id="days">0</div>
+          <div class="label">DIAS</div>
+        </div>
+        <div class="block">
+          <div class="value" id="hours">0</div>
+          <div class="label">HORAS</div>
+        </div>
+        <div class="block">
+          <div class="value" id="minutes">0</div>
+          <div class="label">MINUTOS</div>
+        </div>
+        <div class="block">
+          <div class="value" id="seconds">0</div>
+          <div class="label">SEGUNDOS</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex-basis:100%;height:0"></div>
+    <div class="note-bottom">Data alvo: <strong>19/12/2025 16:30</strong> (local)</div>
+  </div>
+
+  <script>
+    /**
+     * Configurações editáveis (JavaScript):
+     * - TARGET_ISO: altere a data/hora alvo aqui (formato ISO local/sem fuso: YYYY-MM-DDTHH:MM:SS)
+     *   Observação: este script considera horário local do navegador. Se quiser forçar fuso, inclua o sufixo 'Z' ou um offset.
+     */
+
+    // DATA/ HORA ALVO: 2025-12-19 16:30 (conforme pedido)
+    const TARGET_ISO = '2025-12-19T16:30:00';
+
+    // Labels (edite se quiser outro texto)
+    const LABELS = {
+      days: 'DIAS',
+      hours: 'HORAS',
+      minutes: 'MINUTOS',
+      seconds: 'SEGUNDOS'
+    };
+
+    // Seletores
+    const $days = document.getElementById('days');
+    const $hours = document.getElementById('hours');
+    const $minutes = document.getElementById('minutes');
+    const $seconds = document.getElementById('seconds');
+
+    // Função para formatar com dois dígitos
+    function pad(v){return String(v).padStart(2,'0')}
+
+    // Converte a string TARGET_ISO para objeto Date.
+    // Nota: sem sufixo de fuso, o navegador assume horário local.
+    const targetDate = new Date(TARGET_ISO);
+
+    function updateCountdown(){
+      const now = new Date();
+      let diff = targetDate.getTime() - now.getTime();
+
+      if (diff <= 0){
+        // Quando chegar a hora, mostra zeros e uma mensagem opcional
+        $days.textContent = '00';
+        $hours.textContent = '00';
+        $minutes.textContent = '00';
+        $seconds.textContent = '00';
+        // você pode descomentar a linha abaixo para mostrar uma mensagem ou disparar ação
+        // alert('Período de férias iniciado!');
+        clearInterval(timer);
+        return;
+      }
+
+      const sec = Math.floor(diff / 1000);
+      const days = Math.floor(sec / (24*60*60));
+      const hours = Math.floor((sec % (24*60*60)) / (60*60));
+      const minutes = Math.floor((sec % (60*60)) / 60);
+      const seconds = Math.floor(sec % 60);
+
+      $days.textContent = pad(days);
+      $hours.textContent = pad(hours);
+      $minutes.textContent = pad(minutes);
+      $seconds.textContent = pad(seconds);
+    }
+
+    // Atualiza imediatamente e depois a cada segundo
+    updateCountdown();
+    const timer = setInterval(updateCountdown,1000);
+
+    // Accessibility: atualiza labels dinamicamente (caso o usuário edite LABELS)
+    document.querySelectorAll('.block .label').forEach((el,i)=>{
+      const keys = ['days','hours','minutes','seconds'];
+      el.textContent = LABELS[keys[i]] || el.textContent;
+    });
+
+    // Exemplo: permitir troca de logo por arrastar/colar (opcional)
+    // Para tornar totalmente editável via HTML experimente trocar o atributo src da tag <img id="logo">.
+  </script>
+</body>
+</html>
